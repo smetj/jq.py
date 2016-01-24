@@ -5,6 +5,7 @@ import platform
 import subprocess
 import tarfile
 import shutil
+from Cython.Build import cythonize
 
 try:
     import sysconfig
@@ -84,6 +85,8 @@ class jq_build_ext(build_ext):
         if macosx_deployment_target:
             os.environ['MACOSX_DEPLOYMENT_TARGET'] = macosx_deployment_target
 
+        #Nasty hack, ... no idea why this needs to be done manually, ...
+        command(["cython", "../jq.pyx"])
         command(["autoreconf", "-i"])
         command(["./configure", "CFLAGS=-fPIC", "--disable-maintainer-mode", "--with-oniguruma=%s/%s" % (os.getcwd(), onig_lib_dir)])
         command(["make"])
@@ -96,9 +99,6 @@ jq_extension = Extension(
     sources=["jq.c"],
     include_dirs=[jq_lib_dir, "%s/lib" % (onig_lib_dir)],
     extra_objects=[os.path.join(jq_lib_dir, ".libs/libjq.a"), os.path.join(onig_lib_dir, ".libs/libonig.a")],
-    # library_dirs=["/home/smetj/data/projects/github/jq.py/onig-5.9.6/lib"],
-    # libraries=["onig"],
-    # extra_compile_args=["-static"]
     )
 
 setup(
