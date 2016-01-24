@@ -5,7 +5,6 @@ import platform
 import subprocess
 import tarfile
 import shutil
-from Cython.Build import cythonize
 
 try:
     import sysconfig
@@ -59,7 +58,9 @@ def build_onig():
         command(['./configure', 'CFLAGS=-fPIC', '--prefix=%s/%s' % (os.getcwd(), onig_lib_dir)], cwd=onig_lib_dir)
         command(['/usr/bin/make'], cwd=onig_lib_dir)
         command(['/usr/bin/make', 'install'], cwd=onig_lib_dir)
-
+        command(['pip', 'install', 'cython'], cwd=os.getcwd())
+        #Nasty hack, ... no idea why this needs to be done manually, ...
+        command(["cython", "jq.pyx"], cwd=os.getcwd())
 
 class jq_build_ext(build_ext):
     def run(self):
@@ -85,8 +86,6 @@ class jq_build_ext(build_ext):
         if macosx_deployment_target:
             os.environ['MACOSX_DEPLOYMENT_TARGET'] = macosx_deployment_target
 
-        #Nasty hack, ... no idea why this needs to be done manually, ...
-        command(["cython", "../jq.pyx"])
         command(["autoreconf", "-i"])
         command(["./configure", "CFLAGS=-fPIC", "--disable-maintainer-mode", "--with-oniguruma=%s/%s" % (os.getcwd(), onig_lib_dir)])
         command(["make"])
@@ -110,6 +109,7 @@ setup(
     url='http://github.com/mwilliamson/jq.py',
     zip_safe=False,
     license='BSD 2-Clause',
+    install_requires = ["cython"],
     ext_modules = [jq_extension],
     cmdclass={"build_ext": jq_build_ext},
     classifiers=[
