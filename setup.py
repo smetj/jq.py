@@ -101,8 +101,8 @@ jq_extension = Extension(
     )
 
 setup(
-    name='jq',
-    version='0.1.6',
+    name='jq_oniguruma',
+    version='0.1.5',
     description='jq is a lightweight and flexible JSON processor.',
     long_description=read("README.rst"),
     author='Michael Williamson',
